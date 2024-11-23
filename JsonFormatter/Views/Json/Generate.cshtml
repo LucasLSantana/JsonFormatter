@@ -1,0 +1,197 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model Application.Application.DTOs.JsonDataDto
+
+@{
+    ViewData["Title"] = "Gerar JSON Aleatório";
+}
+<div class="container mt-5 json-generator">
+    <!-- Título -->
+    <h1 class="text-primary text-center">Gerar JSON Aleatório</h1>
+    <p class="text-muted text-center">Insira o JSON de exemplo com a estrutura desejada, incluindo listas de objetos.</p>
+
+    <form method="post" asp-action="GravarJson" enctype="multipart/form-data" class="p-4 border rounded bg-light">
+        <!-- JSON de Exemplo -->
+        <div class="form-group mb-4">
+            <label for="jsonExample" class="form-label">Cole o JSON de exemplo:</label>
+            <textarea id="jsonExample" class="form-control" rows="10" placeholder='{"nome":"string","detalhes":[{"chave":"string","idade":"bool"}]}'></textarea>
+        </div>
+
+        <!-- Botões Gerar e Limpar -->
+        <div class="d-flex justify-content-between mb-4">
+            <button id="generateJsonBtn" type="button" class="btn btn-primary">
+                <i class="bi bi-gear-fill"></i> Gerar JSON
+            </button>
+            <button id="clearBtn" type="button" class="btn btn-secondary">
+                <i class="bi bi-trash-fill"></i> Limpar
+            </button>
+        </div>
+
+        <!-- JSON Gerado -->
+        <div class="form-group mb-4">
+            <label for="generatedJson" class="form-label">JSON Gerado:</label>
+            <textarea id="generatedJson" class="form-control" rows="10" name="JsonGerado" readonly placeholder="O JSON gerado será exibido aqui."></textarea>
+        </div>
+
+        <!-- Seção da API -->
+        <div id="apiSection" style="display: none;" class="mb-4">
+            <div class="form-group mb-3">
+                <label for="apiLink" class="form-label">Link da API:</label>
+                <input type="text" id="apiLink" class="form-control" name="Url" placeholder="Insira o link da API para enviar o JSON" value="https://reqres.in/api/users" />
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="httpMethod" class="form-label">Método HTTP:</label>
+                <select id="httpMethod" name="Metodo" class="form-select">
+                    <option value="POST">POST</option>
+                    <option value="GET">GET</option>
+                    <option value="DELETE">DELETE</option>
+                </select>
+            </div>
+
+            <button id="sendJsonBtn" type="button" class="btn btn-primary">
+                <i class="bi bi-send-fill"></i> Enviar para API
+            </button>
+        </div>
+
+        <!-- Resposta da API -->
+        <div id="responseSection" style="display: none;" class="mb-4">
+            <div class="form-group">
+                <label for="apiResponse" class="form-label">Resposta da API:</label>
+                <textarea id="apiResponse" class="form-control" name="Response" rows="10" readonly placeholder="A resposta da API será exibida aqui."></textarea>
+            </div>
+        </div>
+
+        <!-- Botões de Salvar e Voltar -->
+        <div class="d-flex justify-content-between mt-4">
+            <button type="submit" class="btn btn-success">
+                <i class="bi bi-save-fill"></i> Salvar
+            </button>
+            <a href="Index" class="btn btn-primary">
+                <i class="bi bi-arrow-left"></i> Voltar
+            </a>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Função para gerar valores aleatórios com base no tipo
+    const generateRandomValue = (type) => {
+        switch (type.toLowerCase()) {
+            case "string":
+                return Math.random().toString(36).substring(7); // String aleatória
+            case "int":
+            case "integer":
+                return Math.floor(Math.random() * 100); // Número inteiro
+            case "float":
+            case "double":
+                return (Math.random() * 100).toFixed(2); // Número decimal
+            case "bool":
+            case "boolean":
+                return Math.random() < 0.5; // Verdadeiro ou falso
+            case "date":
+                return new Date().toISOString(); // Data no formato ISO
+            default:
+                return null; // Caso não reconheça o tipo
+        }
+    };
+
+    // Função para gerar objetos de listas
+    const generateRandomObject = (exampleObject) => {
+        const generatedObject = {};
+        Object.entries(exampleObject).forEach(([key, type]) => {
+            if (Array.isArray(type)) {
+                generatedObject[key] = generateRandomList(type[0]);
+            } else {
+                generatedObject[key] = generateRandomValue(type);
+            }
+        });
+        return generatedObject;
+    };
+
+    // Função para gerar listas de objetos
+    const generateRandomList = (exampleObject, length = 3) => {
+        return Array.from({ length }, () => generateRandomObject(exampleObject));
+    };
+
+    // Função principal para gerar o JSON
+    const generateRandomJson = (exampleJson) => {
+        try {
+            const parsedExample = JSON.parse(exampleJson);
+            const generatedJson = {};
+
+            Object.entries(parsedExample).forEach(([key, type]) => {
+                if (Array.isArray(type)) {
+                    generatedJson[key] = generateRandomList(type[0]);
+                } else if (typeof type === "object") {
+                    generatedJson[key] = generateRandomObject(type);
+                } else {
+                    generatedJson[key] = generateRandomValue(type);
+                }
+            });
+
+            return JSON.stringify(generatedJson, null, 2);
+        } catch (error) {
+            alert("Erro: O JSON de exemplo informado é inválido.");
+            return null;
+        }
+    };
+
+    // Função para enviar o JSON gerado para a API
+    const sendJsonToApi = async (apiUrl, json, method) => {
+        try {
+            const options = {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: method === "POST" ? json : null
+            };
+
+            const response = await fetch(apiUrl, options);
+
+            if (response.ok) {
+                const data = await response.json();
+                document.getElementById("apiResponse").value = JSON.stringify(data, null, 2); // Exibe a resposta da API
+            } else {
+                document.getElementById("apiResponse").value = `Erro: ${response.statusText}`;
+            }
+        } catch (error) {
+            document.getElementById("apiResponse").value = `Erro ao enviar JSON: ${error.message}`;
+        }
+    };
+
+    // Eventos dos botões
+    document.getElementById("generateJsonBtn").addEventListener("click", () => {
+        const jsonExample = document.getElementById("jsonExample").value;
+        const generatedJson = generateRandomJson(jsonExample);
+
+        if (generatedJson) {
+            document.getElementById("generatedJson").value = generatedJson;
+
+            // Exibe o link da API, botão de envio e a área de resposta
+            document.getElementById("apiSection").style.display = 'block';
+            document.getElementById("responseSection").style.display = 'block';
+        }
+    });
+
+    document.getElementById("clearBtn").addEventListener("click", () => {
+        document.getElementById("jsonExample").value = "";
+        document.getElementById("generatedJson").value = "";
+        document.getElementById("apiLink").value = "https://dummyjson.com/users/add";
+        document.getElementById("apiResponse").value = "";
+        document.getElementById("apiSection").style.display = 'none';
+        document.getElementById("responseSection").style.display = 'none';
+    });
+
+    document.getElementById("sendJsonBtn").addEventListener("click", () => {
+        const apiLink = document.getElementById("apiLink").value;
+        const generatedJson = document.getElementById("generatedJson").value;
+        const httpMethod = document.getElementById("httpMethod").value;
+
+        if (apiLink && generatedJson) {
+            sendJsonToApi(apiLink, generatedJson, httpMethod);
+        } else {
+            alert("Por favor, insira um link da API válido e gere um JSON antes de enviar.");
+        }
+    });
+</script>

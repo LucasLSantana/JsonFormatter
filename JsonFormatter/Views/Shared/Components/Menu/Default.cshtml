@@ -1,0 +1,35 @@
+﻿@{
+    var currentController = ViewContext.RouteData.Values["Controller"]?.ToString();
+}
+
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <div class="container-fluid">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarScroll" aria-controls="navbarScroll" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarScroll">
+            <ul class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll" style="--bs-scroll-height: 100px;">
+                <li class="nav-item">
+                    <a class="nav-link @(currentController == "Home" ? "active" : "")" aria-selected="true" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @(currentController == "Processo" ? "active" : "")" aria-selected="false" asp-area="" asp-controller="Processo" asp-action="Index">Validação</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @(currentController == "ChatNarwal" ? "active" : "")" aria-selected="false" asp-area="" asp-controller="ChatNarwal" asp-action="Index">Polaris</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @(currentController == "Smtp" ? "active" : "")" aria-selected="false" asp-area="" asp-controller="Smtp" asp-action="Index">Validador SMTP</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @(currentController == "Felipe" ? "active" : "")" aria-selected="false" asp-area="" asp-controller="Felipe" asp-action="Index">Felipe</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" aria-selected="false" asp-area="" asp-controller="Login" asp-action="Sair">Sair</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>

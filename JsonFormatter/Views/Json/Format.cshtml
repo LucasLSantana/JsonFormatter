@@ -1,0 +1,132 @@
+﻿@{
+ViewData["Title"] = "Formatar JSON";
+}
+
+
+<div class="container">
+    <h1 class="text-center text-primary mb-4">JSON TreeView</h1>
+    <textarea id="json-input" class="form-control mb-3" rows="8" placeholder="Cole o JSON aqui..."></textarea>
+    <div class="d-flex justify-content-between">
+        <button id="load-json-btn" class="btn btn-primary">
+            <i class="bi bi-diagram-3-fill"></i> Carregar JSON
+        </button>
+        <button id="clear-json-btn" class="btn btn-secondary">
+            <i class="bi bi-trash-fill"></i> Limpar
+        </button>
+    </div>
+    <div class="treeview-container mt-4" id="treeview-container" style="display: none;">
+        <h3 class="text-secondary">Resultado</h3>
+        <div class="treeview" id="json-treeview">
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById("load-json-btn").addEventListener("click", function () {
+        const jsonInput = document.getElementById("json-input").value;
+        const treeContainer = document.getElementById("json-treeview");
+        const treeViewContainer = document.getElementById("treeview-container");
+
+        try {
+            const jsonObj = JSON.parse(jsonInput);
+            treeContainer.innerHTML = "";
+            treeContainer.appendChild(createTreeView(jsonObj));
+            treeViewContainer.style.display = "block";
+        } catch (error) {
+            alert("Erro ao processar o JSON. Verifique a sintaxe.");
+        }
+    });
+
+    document.getElementById("clear-json-btn").addEventListener("click", function() {
+        // Limpar o conteúdo do textarea
+        document.getElementById("json-input").value = "";
+
+        // Remover qualquer árvore renderizada
+        const jsonTreeview = document.getElementById("json-treeview");
+        const treeViewContainer = document.getElementById("treeview-container");
+        jsonTreeview.innerHTML = ""; // Limpa o conteúdo da árvore
+        treeViewContainer.style.display = "none";
+    });
+
+    function createTreeView(obj, parentKey = "") {
+        const ul = document.createElement("ul");
+
+        let index = 0; // Índice para rastrear a posição no array
+        for (const key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                const li = document.createElement("li");
+
+                if (Array.isArray(obj[key])) {
+                    // Caso seja um array
+                    const span = document.createElement("span");
+                    span.textContent = `${key}:`; // Apenas o nome do array
+                    span.addEventListener("click", function () {
+                        const nestedUl = this.nextElementSibling;
+                        if (nestedUl) {
+                            const isCollapsed = nestedUl.classList.contains("collapsed");
+                            nestedUl.classList.toggle("collapsed", !isCollapsed);
+                            nestedUl.classList.toggle("expanded", isCollapsed);
+                            this.classList.toggle("expanded", isCollapsed);
+                        }
+                    });
+                    li.appendChild(span);
+
+                    const childUl = document.createElement("ul");
+
+                    obj[key].forEach((item, idx) => {
+                        const childLi = document.createElement("li");
+                        if (typeof item === "object" && item !== null) {
+                            const childSpan = document.createElement("span");
+                            childSpan.textContent = `${key}(${idx}):`;
+                            childSpan.addEventListener("click", function () {
+                                const nestedUl = this.nextElementSibling;
+                                if (nestedUl) {
+                                    const isCollapsed = nestedUl.classList.contains("collapsed");
+                                    nestedUl.classList.toggle("collapsed", !isCollapsed);
+                                    nestedUl.classList.toggle("expanded", isCollapsed);
+                                    this.classList.toggle("expanded", isCollapsed);
+                                }
+                            });
+                            childLi.appendChild(childSpan);
+                            const grandChildUl = createTreeView(item, `${key}(${idx})`);
+                            grandChildUl.classList.add("collapsed");
+                            childLi.appendChild(grandChildUl);
+                        } else {
+                            childLi.innerHTML = `<strong>${key}(${idx}):</strong> ${item}`;
+                        }
+                        childUl.appendChild(childLi);
+                    });
+
+                    childUl.classList.add("collapsed");
+                    li.appendChild(childUl);
+                } else if (typeof obj[key] === "object" && obj[key] !== null) {
+                    // Caso seja um objeto
+                    const span = document.createElement("span");
+                    span.textContent = `${key}:`;
+                    span.addEventListener("click", function () {
+                        const nestedUl = this.nextElementSibling;
+                        if (nestedUl) {
+                            const isCollapsed = nestedUl.classList.contains("collapsed");
+                            nestedUl.classList.toggle("collapsed", !isCollapsed);
+                            nestedUl.classList.toggle("expanded", isCollapsed);
+                            this.classList.toggle("expanded", isCollapsed);
+                        }
+                    });
+
+                    li.appendChild(span);
+                    const childUl = createTreeView(obj[key], key);
+                    childUl.classList.add("collapsed");
+                    li.appendChild(childUl);
+                } else {
+                    li.innerHTML = `<strong>${key}:</strong> ${obj[key]}`;
+                }
+
+                ul.appendChild(li);
+                index++;
+            }
+        }
+
+        return ul;
+    }
+
+</script>

@@ -1,0 +1,47 @@
+﻿@model Application.Application.DTOs.JsonDataDto
+
+@{
+ViewData["Title"] = "Visualizar JSON";
+}
+
+
+<div class="container mt-5 json-generator">
+    <!-- Título -->
+    <h1 class="text-primary text-center">Detalhes do JSON</h1>
+    <p class="text-muted text-center">Visualize os detalhes do JSON gerado e a resposta da API.</p>
+
+    <!-- JSON Gerado -->
+    <div class="form-group mb-4">
+        <label for="generatedJson" class="form-label">JSON Gerado:</label>
+        <textarea id="generatedJson" class="form-control" readonly rows="15" placeholder="O JSON gerado será exibido aqui.">@Model.JsonGerado</textarea>
+    </div>
+
+    <!-- Seção da API -->
+    <div id="apiSection" class="mb-4">
+        <div class="form-group mb-3">
+            <label class="form-label">Link da API:</label>
+            <p class="form-control-plaintext">@Model.Url</p>
+        </div>
+        <div class="form-group">
+            <label for="httpMethod" class="form-label">Método HTTP:</label>
+            <select id="httpMethod" class="form-select" readonly>
+                <option>@Model.Metodo</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Resposta da API -->
+    <div id="responseSection" class="mb-4">
+        <div class="form-group">
+            <label for="apiResponse" class="form-label">Resposta da API:</label>
+            <textarea id="apiResponse" class="form-control" readonly rows="15" placeholder="A resposta da API será exibida aqui.">@Model.Response</textarea>
+        </div>
+    </div>
+
+    <!-- Botão Voltar -->
+    <div class="d-flex justify-content-center">
+        <a href="~/Json" class="btn btn-primary btn-lg">
+            <i class="bi bi-arrow-left"></i> Voltar
+        </a>
+    </div>
+</div>

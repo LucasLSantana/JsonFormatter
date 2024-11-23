@@ -1,0 +1,33 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] - JSON Formatter</title>
+    <link rel="stylesheet" href="~/css/site.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<body class="layout">
+<!-- Navbar -->
+<header class="navbar">
+    <a href="/" class="logo">JSON Formatter & Validator</a>
+    <nav>
+        <a href="/Home/Index" class="active">Home</a>
+        <a href="/Json/Format">Formatar JSON</a>
+        <a href="/Json/Index">Gerar JSON</a>
+    </nav>
+</header>
+
+<!-- Main Content -->
+<main class="main-content">
+    @RenderBody()
+</main>
+
+<!-- Footer -->
+<footer class="footer">
+    <p>&copy; 2024 - JSON Formatter & Validator | <a href="/Home/Privacy">Política de Privacidade</a></p>
+</footer>
+</body>
+</html>
